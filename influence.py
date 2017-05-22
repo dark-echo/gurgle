@@ -3,6 +3,7 @@ from urllib2 import urlopen
 from urllib import urlencode
 from datetime import datetime as dt
 import re
+import time
 
 # Configuration determination, currently on import since it's required
 import ConfigParser
@@ -11,6 +12,8 @@ config.read('gurgle.ini')
 
 # Configuration for the Google Sheet interaction
 __SHEET_URL = config.get('sheet', 'url')
+__SHEET_RETRIES = config.get('sheet', 'retries') if config.has_option('sheet', 'retries') else 3
+__SHEET_TIMEOUT = config.get('sheet', 'timeout') if config.has_option('sheet', 'timeout') else 10
 _TODAY_ONLY = config.getboolean('events', 'today_only')
 
 # Interested in activity around a specified location
@@ -137,8 +140,18 @@ def CreateUpdate(timestamp, starName, systemFaction, factionList):
 def SendUpdate(dictionary):
     """Posts the specified dictionary to the Google Sheet."""
     data = urlencode(dictionary)
-    response = urlopen(__SHEET_URL, data)
-    success = response.getcode()
-    response.close()
-    return (success == 200)
-    
+    retries = __SHEET_RETRIES
+    retryWait = __SHEET_TIMEOUT
+    while retries > 0:
+        try:
+            response = urlopen(__SHEET_URL, data)
+            success = response.getcode()
+            response.close()
+            return (success == 200)
+        except Exception, e:
+            print "(Retry %d) Exception while attempting to POST data: %s" % (retries, str(e))
+            retries -= 1
+            if retries > 0:
+                time.sleep(retryWait)
+    # Unable to send after all the retries
+    return False
