@@ -41,6 +41,15 @@ function updateInfluence(doc, e) {
 }
 
 function handleResponse(e) {
+  // Confirm this as a valid request before doing anything
+  var reqKey = SCRIPT_PROP.getProperty("api_key");
+  var specifiedKey = e.parameter["API_KEY"];
+  if (specifiedKey != reqKey) {
+    // return json invalid credentials results
+    return ContentService.createTextOutput(JSON.stringify({"result":"invalid"}))
+          .setMimeType(ContentService.MimeType.JSON);
+  }
+
   // prevent concurrent access overwritting data
   // [1] http://googleappsdeveloper.blogspot.co.uk/2011/10/concurrency-and-google-apps-script.html
   // we want a public lock, one that locks for all invocations

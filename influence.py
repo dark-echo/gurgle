@@ -12,6 +12,7 @@ config.read('gurgle.ini')
 
 # Configuration for the Google Sheet interaction
 __SHEET_URL = config.get('sheet', 'url')
+__SHEET_API_KEY = config.get('sheet', 'apikey')
 __SHEET_RETRIES = config.get('sheet', 'retries') if config.has_option('sheet', 'retries') else 3
 __SHEET_TIMEOUT = config.get('sheet', 'timeout') if config.has_option('sheet', 'timeout') else 10
 _TODAY_ONLY = config.getboolean('events', 'today_only')
@@ -139,6 +140,7 @@ def CreateUpdate(timestamp, starName, systemFaction, factionList):
 
 def SendUpdate(dictionary):
     """Posts the specified dictionary to the Google Sheet."""
+    dictionary['API_KEY'] = __SHEET_API_KEY
     data = urlencode(dictionary)
     retries = __SHEET_RETRIES
     retryWait = __SHEET_TIMEOUT
@@ -147,6 +149,8 @@ def SendUpdate(dictionary):
             response = urlopen(__SHEET_URL, data)
             success = response.getcode()
             response.close()
+            if success != 200:
+                print "Failure reported by HTTP: %d" % success
             return (success == 200)
         except Exception, e:
             print "(Retry %d) Exception while attempting to POST data: %s" % (retries, str(e))
