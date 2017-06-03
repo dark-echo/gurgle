@@ -37,7 +37,8 @@ function updateInfluence(doc, e) {
     }
   }
   // more efficient to set values as [][] array than individually
-  sheet.getRange(nextRow, 1, 1, row.length).setValues([row]);  
+  sheet.getRange(nextRow, 1, 1, row.length).setValues([row]);
+  return nextRow;
 }
 
 function handleResponse(e) {
@@ -60,7 +61,7 @@ function handleResponse(e) {
     // set where we write the data
     var doc = SpreadsheetApp.openById(SCRIPT_PROP.getProperty("key"));
     // update influence data
-    updateInfluence(doc, e);
+    var nextRow = updateInfluence(doc, e);
 
     // return json success results
     return ContentService
