@@ -2,6 +2,7 @@ from math import pow, sqrt
 from urllib2 import urlopen
 from urllib import urlencode
 from datetime import datetime as dt
+import md5
 import re
 import time
 
@@ -12,8 +13,9 @@ config.read('gurgle.ini')
 
 # Configuration for the Google Sheet interaction
 __SHEET_URL = config.get('sheet', 'url')
-__SHEET_API_KEY = config.get('sheet', 'apikey')
+__SHEET_API_KEY = md5.new(config.get('sheet', 'apikey')).hexdigest()
 __SHEET_RETRIES = config.get('sheet', 'retries') if config.has_option('sheet', 'retries') else 3
+__SHEET_RETRY_WAIT = config.get('sheet', 'retry_wait') if config.has_option('sheet', 'retry_wait') else 5
 __SHEET_TIMEOUT = config.get('sheet', 'timeout') if config.has_option('sheet', 'timeout') else 10
 _TODAY_ONLY = config.getboolean('events', 'today_only')
 
@@ -143,10 +145,10 @@ def SendUpdate(dictionary):
     dictionary['API_KEY'] = __SHEET_API_KEY
     data = urlencode(dictionary)
     retries = __SHEET_RETRIES
-    retryWait = __SHEET_TIMEOUT
+    retryWait = __SHEET_RETRY_WAIT
     while retries > 0:
         try:
-            response = urlopen(__SHEET_URL, data)
+            response = urlopen(__SHEET_URL, data, __SHEET_TIMEOUT)
             success = response.getcode()
             response.close()
             if success != 200:
