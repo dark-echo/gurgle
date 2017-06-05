@@ -2,6 +2,7 @@ from math import pow, sqrt
 from urllib2 import urlopen
 from urllib import urlencode
 from datetime import datetime as dt
+import json
 import md5
 import re
 import time
@@ -14,9 +15,10 @@ config.read('gurgle.ini')
 # Configuration for the Google Sheet interaction
 __SHEET_URL = config.get('sheet', 'url')
 __SHEET_API_KEY = md5.new(config.get('sheet', 'apikey')).hexdigest()
-__SHEET_RETRIES = config.get('sheet', 'retries') if config.has_option('sheet', 'retries') else 3
-__SHEET_RETRY_WAIT = config.get('sheet', 'retry_wait') if config.has_option('sheet', 'retry_wait') else 5
-__SHEET_TIMEOUT = config.get('sheet', 'timeout') if config.has_option('sheet', 'timeout') else 10
+__SHEET_RETRIES = config.getint('sheet', 'retries') if config.has_option('sheet', 'retries') else 3
+__SHEET_RETRY_WAIT = config.getint('sheet', 'retry_wait') if config.has_option('sheet', 'retry_wait') else 5
+__SHEET_TIMEOUT = config.getint('sheet', 'timeout') if config.has_option('sheet', 'timeout') else 10
+__SHEET_RESPONSE_BUFFER = config.getint('sheet', 'buffer') if config.has_option('sheet', 'buffer') else 512
 _TODAY_ONLY = config.getboolean('events', 'today_only')
 
 # Interested in activity around a specified location
@@ -141,23 +143,32 @@ def CreateUpdate(timestamp, starName, systemFaction, factionList):
     return data
 
 def SendUpdate(dictionary):
-    """Posts the specified dictionary to the Google Sheet."""
+    """Posts the specified dictionary to the Google Sheet.
+
+    To be successful we need to provide an appropriate API_KEY value, and we also
+    want to retry any infrastructure errors (i.e. unable to complete the POST) but
+    abandon the entire process if the "application" does not report success (i.e.
+    on an invalid token, badly formed request, etc.).
+    """
     dictionary['API_KEY'] = __SHEET_API_KEY
     data = urlencode(dictionary)
     retries = __SHEET_RETRIES
-    retryWait = __SHEET_RETRY_WAIT
-    while retries > 0:
+    success = 0
+    response = None
+    while success != 200 and retries > 0:
         try:
-            response = urlopen(__SHEET_URL, data, __SHEET_TIMEOUT)
-            success = response.getcode()
-            response.close()
-            if success != 200:
-                print "Failure reported by HTTP: %d" % success
-            return (success == 200)
+            request = urlopen(__SHEET_URL, data, __SHEET_TIMEOUT)
+            success = request.getcode()
+            response = request.read(__SHEET_RESPONSE_BUFFER)
+            request.close()
         except Exception, e:
             print "(Retry %d) Exception while attempting to POST data: %s" % (retries, str(e))
             retries -= 1
             if retries > 0:
-                time.sleep(retryWait)
-    # Unable to send after all the retries
-    return False
+                time.sleep(__SHEET_RETRY_WAIT)
+    # Check the response for validity, where "result"="success"
+    if success == 200 and response is not None:
+        result = json.loads(response) # Throws Exception if JSON not returned
+        if (result["result"] != "success"):
+            raise Exception("Bad response from Sheet: %s" % result)
+    return (success == 200)
