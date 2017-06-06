@@ -1,32 +1,28 @@
 import zlib
 import zmq
 import json
-import sys
 import time
+from config import Config
 from influence import ConsumeFSDJump
 
 # Configuration determination, currently on import since it's required
-import ConfigParser
-config = ConfigParser.RawConfigParser()
-config.read('gurgle.ini')
-
-__relayEDDN = config.get('eddn', 'relay')
-__timeoutEDDN = config.getint('eddn', 'timeout')
+__relayEDDN = Config.getString('eddn', 'relay')
+__timeoutEDDN = Config.getInteger('eddn', 'timeout', 60000)
 
 # Only interested in the Journal Schema ($schemaRef)
 _SCHEMA_REF = "http://schemas.elite-markets.net/eddn/journal/1"
 
 def main():
     """Main method that connects to EDDN."""
-    context     = zmq.Context()
-    subscriber  = context.socket(zmq.SUB)
+    logger = Config.getLogger("eddn")
+    context = zmq.Context()
+    subscriber = context.socket(zmq.SUB)
     subscriber.setsockopt(zmq.SUBSCRIBE, "")
 
     while True:
         try:
             subscriber.connect(__relayEDDN)
-            print 'Connected to EDDN at', __relayEDDN
-            sys.stdout.flush()
+            logger.info('Connected to EDDN at %s', __relayEDDN)
             
             poller = zmq.Poller()
             poller.register(subscriber, zmq.POLLIN)
@@ -43,21 +39,18 @@ def main():
                             # Only interested in FSDJump event currently
                             if __content["event"] == "FSDJump":
                                 ConsumeFSDJump(__content)
-                                sys.stdout.flush()
                 else:
-                    print 'Disconnect from EDDN (After timeout)'
-                    sys.stdout.flush()
-                    
+                    logger.warning('Disconnect from EDDN (After timeout)')
                     subscriber.disconnect(__relayEDDN)
                     break
                 
         except zmq.ZMQError, e:
-            print 'Disconnect from EDDN (After receiving ZMQError)'
-            print 'ZMQSocketException: ' + str(e)
-            sys.stdout.flush()
-            
+            logger.warning('Disconnect from EDDN (After receiving ZMQError)', exc_info=True)
             subscriber.disconnect(__relayEDDN)
             time.sleep(10)
+        except Exception:
+            logger.critical('Unhandled exception occurred while processing EDDN messages.', exc_info=True)
+            break # exit the main loop
 
 # Enable command line execution
 if __name__ == '__main__':

@@ -2,31 +2,29 @@ from math import pow, sqrt
 from urllib2 import urlopen
 from urllib import urlencode
 from datetime import datetime as dt
+from config import Config
 import json
-import md5
 import re
 import time
 
-# Configuration determination, currently on import since it's required
-import ConfigParser
-config = ConfigParser.RawConfigParser()
-config.read('gurgle.ini')
+# Logger instance used by the functions in this module
+_LOGGER = Config.getLogger("influence")
 
 # Configuration for the Google Sheet interaction
-__SHEET_URL = config.get('sheet', 'url')
-__SHEET_API_KEY = md5.new(config.get('sheet', 'apikey')).hexdigest()
-__SHEET_RETRIES = config.getint('sheet', 'retries') if config.has_option('sheet', 'retries') else 3
-__SHEET_RETRY_WAIT = config.getint('sheet', 'retry_wait') if config.has_option('sheet', 'retry_wait') else 5
-__SHEET_TIMEOUT = config.getint('sheet', 'timeout') if config.has_option('sheet', 'timeout') else 10
-__SHEET_RESPONSE_BUFFER = config.getint('sheet', 'buffer') if config.has_option('sheet', 'buffer') else 512
-_TODAY_ONLY = config.getboolean('events', 'today_only')
+__SHEET_URL = Config.getString('sheet', 'url')
+__SHEET_API_KEY = Config.getCrypt('sheet', 'apikey')
+__SHEET_RETRIES = Config.getInteger('sheet', 'retries', 3)
+__SHEET_RETRY_WAIT = Config.getInteger('sheet', 'retry_wait', 3)
+__SHEET_TIMEOUT = Config.getInteger('sheet', 'timeout', 10)
+__SHEET_RESPONSE_BUFFER = Config.getInteger('sheet', 'buffer', 512)
+_TODAY_ONLY = Config.getBoolean('events', 'today_only', True)
 
 # Interested in activity around a specified location
-_LOCATION_X = config.getfloat('location', 'x')
-_LOCATION_Y = config.getfloat('location', 'y')
-_LOCATION_Z = config.getfloat('location', 'z')
-_RANGE_SQUARED = config.getfloat('location', 'distance')**2
-print "Configured for %.1f LY around %s" % (config.getfloat('location', 'distance'), config.get('location', 'name'))
+_LOCATION_X = Config.getFloat('location', 'x')
+_LOCATION_Y = Config.getFloat('location', 'y')
+_LOCATION_Z = Config.getFloat('location', 'z')
+_RANGE_SQUARED = Config.getFloat('location', 'distance')**2
+_LOGGER.info("Configured for %.1f LY around %s", Config.getFloat('location', 'distance'), Config.getString('location', 'name'))
 
 # Provide regular expressions to remove extraneous text specifiers
 _MATCH_GOV = re.compile(r'\$government_(.*);', re.IGNORECASE)
@@ -56,16 +54,17 @@ def ConsumeFSDJump(event):
     starDist2 = pow(_LOCATION_X-starPosX,2)+pow(_LOCATION_Y-starPosY,2)+pow(_LOCATION_Z-starPosZ,2)
     if starDist2 > _RANGE_SQUARED:
         return
+    # Extract the star name which is always provided
+    starName = event["StarSystem"]
     # Determine if the timestamp is considered relevant
     timestamp = event["timestamp"]
     eventDate = timestamp[0:10]
     eventTime = timestamp[11:19]
     todayDate = dt.utcnow().strftime("%Y-%m-%d")
     if _TODAY_ONLY and eventDate != todayDate:
-        print "Event discarded as not today: %s" % eventDate
+        _LOGGER.debug("Event for %s discarded as not today: %s", starName, eventDate)
         return
     # Interested, so we gather information we want to publish
-    starName = event["StarSystem"]
     # Nothing else below here guaranteed to be available
     systemFaction = event.get("SystemFaction", "")
     systemAllegiance = event.get("SystemAllegiance", "")
@@ -78,12 +77,15 @@ def ConsumeFSDJump(event):
     # Sort by descending influence (just in case)
     factionList = sorted(factionList, key=lambda faction: float(faction["Influence"]), reverse=True)
 
-    print "%s %s (%.1fly) %s" % (timestamp, starName, distance, systemFaction)
-    for faction in factionList:
-        print " %s at %.1f%% in state %s" % (faction["Name"],faction["Influence"]*100,faction["FactionState"])
+    #print "%s %s (%.1fly) %s" % (timestamp, starName, distance, systemFaction)
+    #for faction in factionList:
+    #    print " %s at %.1f%% in state %s" % (faction["Name"],faction["Influence"]*100,faction["FactionState"])
 
     # Only want to update if we have factions to report on...
-    if len(factionList) > 0:
+    if len(factionList) == 0:
+        _LOGGER.debug("Event for %s discarded since no factions present.", starName)
+    else: # len(factionList) > 0
+        _LOGGER.debug("Processing update for %s (%.1fly) from %s", starName, distance, timestamp)
         # Create the update
         update = CreateUpdate(timestamp, starName, systemFaction, factionList)
         update["EventDate"] = eventDate
@@ -101,8 +103,13 @@ def ConsumeFSDJump(event):
         # Send the update, if Cache says we need to
         if CheckCache(eventDate, starName, factionList):
             if SendUpdate(update):
+                _LOGGER.info("Processed (sent) update for %s (%.1fly)", starName, distance)
                 # Update the Cache Entry (after send so we have definitely send)
                 CacheUpdate(eventDate, starName, factionList)
+            else:
+                _LOGGER.warning("Failed to send update for %s (%.1fly)", starName, distance)
+        else:
+            _LOGGER.debug("Processed (not sent) update for %s (%.1fly)", starName, distance)
 
 def CheckCache(eventDate, starName, factionList):
     # If the cache doesn't have an entry for today, clear it and add empty
@@ -162,7 +169,7 @@ def SendUpdate(dictionary):
             response = request.read(__SHEET_RESPONSE_BUFFER)
             request.close()
         except Exception, e:
-            print "(Retry %d) Exception while attempting to POST data: %s" % (retries, str(e))
+            _LOGGER.info("(Retry %d) Exception while attempting to POST data: %s", retries, str(e))
             retries -= 1
             if retries > 0:
                 time.sleep(__SHEET_RETRY_WAIT)

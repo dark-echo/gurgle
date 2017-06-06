@@ -8,6 +8,5 @@ The eddn.py provides for listening to the Elite Dangerous Data Network which pro
 The file.py provides an equivalent that simply takes a Journal log file as the first argument and consumes the FSDJump events in the same way.
 
 ## TODO
- - Improve logging capabilities.
  - PowerShell client implementation that monitors player journals (for those not using EDDN feeder apps).
  - Further refactor, but without sacrificing simplicity.
