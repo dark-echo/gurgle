@@ -1,0 +1,21 @@
+# To set up as a service:
+# 1. Edit paths and user and whatnot appropriately:
+# 2. Place in /etc/systemd/system
+# 3. Run `systemctl enable gurgle-de` and `systemctl start gurgle-de`
+# You can watch output with: `journalctl -n 100 --follow -u gurgle.service`
+[Unit]
+Description=Gurgle EDDN Feeder
+After=network.target
+
+[Service]
+User=eric
+Group=eric
+Type=simple
+ExecStart=/usr/bin/python2 /home/eric/src/gurgle-de/eddn.py
+WorkingDirectory=/home/eric/src/gurgle-de
+TimeoutStopSec=20
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
