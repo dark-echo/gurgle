@@ -1,15 +1,17 @@
 //  1. Define sheet names where data is to be written below
 var INFLUENCE_SHEET_NAME = "Influence";
-         
-//  2. Run > setup
+
+//  2. Go to Tools > Script Editor
 //
-//  3. Publish > Deploy as web app 
+//  3. Run > setup
+//
+//  4. Publish > Deploy as web app 
 //    - enter Project Version name and click 'Save New Version' 
 //    - set security level and enable service (most likely execute as 'me' and access 'anyone, even anonymously) 
 //
-//  4. Copy the 'Current web app URL' and post this in your form/script action 
+//  5. Copy the 'Current web app URL' and post this in your form/script action 
 //
-//  5. Insert column names on your destination sheet matching the parameter names of the data you are passing in (exactly matching case)
+//  6. Insert column names on your destination sheet matching the parameter names of the data you are passing in (exactly matching case)
  
 var SCRIPT_PROP = PropertiesService.getScriptProperties(); // new property service
  
