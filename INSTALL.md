@@ -24,4 +24,10 @@
      (you'll need to add new item)
 13. In gurgle.ini, edit location name, x, y, z and distance (radius).
     (you can get this info from EDDB)
-14. Run `python eddn.py` or `python2 eddn.py` and see what happens.
+14. Install python zmq library (for python 2, not 3).
+    Depending on your system, any of these might be correct:
+    - `yum install python-zmq`
+    - `apt-get install python-zmq`
+    - `easy_install zmq`
+    - `pip install -r requirements.txt`
+15. Run `python eddn.py` or `python2 eddn.py` and see what happens.
