@@ -31,3 +31,9 @@
     - `easy_install zmq`
     - `pip install -r requirements.txt`
 15. Run `python eddn.py` or `python2 eddn.py` and see what happens.
+
+## On Windows
+So far we've just run this on Linux and MacOSX, but there's no reason it
+shouldn't work on Windows. Get the latest python2.x and try to do the same
+things...  Or install cygwin with md5 and python2 and you can probably
+follow the Linux/Mac instructions.
