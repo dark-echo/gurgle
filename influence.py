@@ -178,4 +178,5 @@ def SendUpdate(dictionary):
         result = json.loads(response) # Throws Exception if JSON not returned
         if (result["result"] != "success"):
             raise Exception("Bad response from Sheet: %s" % result)
+        _LOGGER.debug("Success Response: %s" % result)
     return (success == 200)
