@@ -47,9 +47,10 @@ function updateSheet(doc, e) {
   if (!isDuplicate(sheet, headers, lastRowIdx, lastColumn, row)) {
     // more efficient to set values as [][] array than individually
     sheet.getRange(nextRowIdx, 1, 1, row.length).setValues([row]);
+    lastRowIdx = nextRowIdx;
   }
 
-  return sheet.getLastRow();
+  return lastRowIdx;
 }
 
 // Determines whether the new row being added matches the last row in the sheet
@@ -118,3 +119,4 @@ function setup() {
     var doc = SpreadsheetApp.getActiveSpreadsheet();
     SCRIPT_PROP.setProperty("key", doc.getId());
 }
+
