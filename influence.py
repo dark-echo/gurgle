@@ -146,6 +146,19 @@ def CreateUpdate(timestamp, starName, systemFaction, factionList):
         data[prefix+"State"] = faction["FactionState"]
         data[prefix+"Allegiance"] = faction["Allegiance"]
         data[prefix+"Government"] = faction["Government"]
+        # Support for Pending/Recovering States
+        #  since sheet is expecting either all information or none for
+        #  each faction we always need to specify these, even if not present
+        states = []
+        if "PendingStates" in faction:
+            for pendingState in faction["PendingStates"]:
+                states.append(pendingState["State"])
+        data[prefix+"PendingState"] = ",".join(states)
+        states = []
+        if "RecoveringStates" in faction:
+            for recoveringState in faction["RecoveringStates"]:
+                states.append(recoveringState["State"])
+        data[prefix+"RecoveringState"] = ",".join(states)
         factionNo = factionNo + 1
     return data
 
