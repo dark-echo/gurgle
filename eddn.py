@@ -10,7 +10,7 @@ __relayEDDN = Config.getString('eddn', 'relay')
 __timeoutEDDN = Config.getInteger('eddn', 'timeout', 60000)
 
 # Only interested in the Journal Schema ($schemaRef)
-_SCHEMA_REF = "http://schemas.elite-markets.net/eddn/journal/1"
+_SCHEMA_REFS = [ "http://schemas.elite-markets.net/eddn/journal/1", "http://eddn.edcd.io/eddn/journal/1" ]
 
 def main():
     """Main method that connects to EDDN."""
@@ -34,7 +34,7 @@ def main():
                         __message   = subscriber.recv(zmq.NOBLOCK)
                         __message   = zlib.decompress(__message)
                         __json      = json.loads(__message)
-                        if __json["$schemaRef"] == _SCHEMA_REF:
+                        if __json["$schemaRef"] in _SCHEMA_REFS:
                             __content = __json["message"]
                             # Only interested in FSDJump event currently
                             if __content["event"] == "FSDJump":
