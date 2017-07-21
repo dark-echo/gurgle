@@ -4,10 +4,9 @@
 
 1. Open up a terminal window
 2. Run `git clone https://github.com/dark-echo/gurgle.git`
-3. Create a google sheet with a tab named "Influences"
-   (or copy canonical sheet)
+3. Copy this google sheet: https://goo.gl/E3Z7mz (or create a google sheet with a tab named "Influences")
 4. In sheet, go to Tools > Script Editor
-5. Copy Code.gs and paste it into Script Editor.
+5. Copy Code.gs and paste it into Script Editor. (if code not already in there)
 6. Run > setup
 7. Publish > Deploy as web app 
    - enter Project Version name and click 'Save New Version' 
