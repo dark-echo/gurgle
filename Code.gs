@@ -16,10 +16,11 @@ var SHEET_NAME = "Influence";
 // Property Service used to store Sheet ID and API Key
 var SCRIPT_PROP = PropertiesService.getScriptProperties();
 // Property that defines whether duplicates are checked for
-var PROPERTY_DUPS = "dups_ignore"; // set to "yes"
+var PROPERTY_DUPS = "dups_ignore"; // set to other than "yes" to allow duplicates
 // Property that defines the headers to skip in duplicate check
 var PROPERTY_DUPS_SKIP = "dups_skip"; // comma-separated header list
 // Recommend setting to "EventDate,EventTime" for Influence sheet.
+var DUPS_SKIP_DEFAULT = ["EventDate","EventTime"];
  
 // Expose POST method only
 function doPost(e){
@@ -55,10 +56,12 @@ function updateSheet(doc, e) {
 
 // Determines whether the new row being added matches the last row in the sheet
 function isDuplicate(sheet, headers, lastRowIdx, lastColumn, row) {
-  if (SCRIPT_PROP.getProperty(PROPERTY_DUPS) != "yes") {
-    return false; // not preventing duplicates
+  if (SCRIPT_PROP.getProperty(PROPERTY_DUPS)) {
+    if (SCRIPT_PROP.getProperty(PROPERTY_DUPS) != "yes") {
+      return false; // not preventing duplicates IF specified but not set to "yes"
+    }
   }
-  var skipHeaders = [];
+  var skipHeaders = DUPS_SKIP_DEFAULT;
   if (SCRIPT_PROP.getProperty(PROPERTY_DUPS_SKIP)) {
     skipHeaders = SCRIPT_PROP.getProperty(PROPERTY_DUPS_SKIP).split(",");
   }
