@@ -4,7 +4,7 @@
 
 1. Open up a terminal window
 2. Run `git clone https://github.com/dark-echo/gurgle.git`
-3. Copy this google sheet: https://goo.gl/E3Z7mz (or create a google sheet with a tab named "Influences")
+3. Copy this google sheet: https://goo.gl/E3Z7mz (or create a google sheet as described below)
 4. In sheet, go to Tools > Script Editor
 5. Copy Code.gs and paste it into Script Editor. (if code not already in there)
 6. Run > setup
@@ -36,3 +36,21 @@ So far we've just run this on Linux and MacOSX, but there's no reason it
 shouldn't work on Windows. Get the latest python2.x and try to do the same
 things...  Or install cygwin with md5 and python2 and you can probably
 follow the Linux/Mac instructions.
+
+## Google Sheet Requirements
+
+1. A tab called "Influence", or an alternate name configured in the Script Editor.
+2. The included `Code.gs` provides for placing provided values into columns based on the column header. Simply add the required columns to the tab defined in step 1.
+3. The following columns are supported:
+   - `Timestamp` - defined by EDDN message, defining when the event was created by the client in UTC.
+   - `EventDate` - date extracted from Timestamp
+   - `EventTime` - time extracted from Timestamp
+   - `StarSystem` - name of the system for which the data is provided
+   - `Distance` - distance calculated for the system based on coordinates provided and configured location in gurgle.ini
+   - `SystemSecurity` / `SystemAllegiance` / `SystemGovernment` / `SystemEconomy`
+   - `SystemFaction - faction which controls the system
+   - For each faction in the system there will be the following, where $ is replaced by 1 to 10.
+   -- `Faction$Name`
+   -- `Faction$Influence`
+   -- `Faction$State` / `Faction$PendingState` / `Faction$RecoveringState`
+   -- `Faction$Allegiance` / `Faction$Government`
