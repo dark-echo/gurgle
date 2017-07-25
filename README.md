@@ -10,6 +10,3 @@ The file.py provides an equivalent that simply takes a Journal log file as the f
 ## SETUP
 Read INSTALL.md for instructions
 
-## TODO
- - PowerShell client implementation that monitors player journals (for those not using EDDN feeder apps).
- - Further refactor, but without sacrificing simplicity.
