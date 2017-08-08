@@ -46,8 +46,8 @@ _MATCH_ECO = re.compile(r'\$economy_(.*);', re.IGNORECASE)
 _CACHE_BY_DATE = {}
 
 def ConsumeFSDJump(event):
-    """Consumes the FSDJump event provided by Journal,
-        extracting the factions and influence levels.
+    """Consumes the FSDJump event (or equivalent subset of Location event)
+        provided by Journal, extracting the factions and influence levels.
     """
     # Extract the StarPos to confirm we're interested
     (starPosX, starPosY, starPosZ) = event["StarPos"]

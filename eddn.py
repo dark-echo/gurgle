@@ -19,8 +19,8 @@ def processMessage(message, logger):
         jsonmsg = json.loads(message)
         if jsonmsg["$schemaRef"] in _SCHEMA_REFS:
             content = jsonmsg["message"]
-            # Only interested in FSDJump event currently
-            if content["event"] == "FSDJump":
+            # Only interested in FSDJump or Location events 
+            if content["event"] in ["FSDJump", "Location"]:
                 ConsumeFSDJump(content)
     except Exception:
         logger.exception('Received message caused unexpected exception, Message: %s' % message)

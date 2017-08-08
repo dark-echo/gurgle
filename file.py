@@ -11,10 +11,10 @@ def main():
     try:
         with open(fileName, "r") as file:
             for line in file:
-                __content = json.loads(line)
-                # Only interested in FSDJump event currently
-                if __content["event"] == "FSDJump":
-                    ConsumeFSDJump(__content)
+                content = json.loads(line)
+                # Only interested in FSDJump or Location events
+                if content["event"] in ["FSDJump", "Location"]:
+                    ConsumeFSDJump(content)
     except:
         logger.critical('Unexpected exception while processing.', exc_info=True)
 
