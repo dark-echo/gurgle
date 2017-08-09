@@ -7,8 +7,8 @@ import md5
 from os import makedirs
 from os.path import isdir, isfile
 
-# Defines the file names checked for configuration information
-_CONFIG_FILES = ['gurgle-local.ini', 'gurgle.local.ini', 'gurgle.ini']
+# Defines the file names checked for configuration overrides
+_CONFIG_FILES = ['gurgle-local.ini', 'gurgle.local.ini']
 # Defines the section and field used to hold logging framework configuration
 _LOG_SECTION = 'logging'
 _LOG_CONFIG = 'config'
@@ -19,6 +19,7 @@ _LOG_FORMAT = "%(asctime)-19.19s %(levelname)-5.5s [%(name)s] %(message)s"
 class Configuration(object):
     def __init__(self):
         self.config = ConfigParser.RawConfigParser()
+        self.config.readfp(open('gurgle.ini'))
         # Check configuration files in preference order
         for filename in _CONFIG_FILES:
             if isfile(filename):
