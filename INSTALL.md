@@ -12,24 +12,25 @@
    - enter Project Version name and click 'Save New Version' 
    - set security level and enable service (most likely execute as 'me' 
      and access 'anyone, even anonymously) 
-8. Copy the 'Current web app URL' and put this in the "url" in gurgle.ini.
-9.  Insert column names on your destination sheet matching the parameter
+8. Copy gurgle.ini to gurgle.local.ini
+9. Copy the 'Current web app URL' and put this in the "url" in gurgle.local.ini.
+10.  Insert column names on your destination sheet matching the parameter
     names of the data you are passing in (exactly matching case)
-10. Make up a key (string), and run `md5 -s 'yourapikey'` or 
+11. Make up a key (string), and run `md5 -s 'yourapikey'` or 
     `echo -n 'yourapikey' | md5sum`
-11. Put the original key into gurgle.ini as apikey
-12.  Put the hex string from md5/md5sum into 'api_key' in 
+12. Put the original key into gurgle.local.ini as apikey
+13.  Put the hex string from md5/md5sum into 'api_key' in 
      Script Editor > Project Properties > Script Properties
      (you'll need to add new item)
-13. In gurgle.ini, edit location name, x, y, z and distance (radius).
+14. In gurgle.local.ini, edit location name, x, y, z and distance (radius).
     (you can get this info from EDDB)
-14. Install python zmq library (for python 2, not 3).
+15. Install python zmq library (for python 2, not 3).
     Depending on your system, any of these might be correct:
     - `yum install python-zmq`
     - `apt-get install python-zmq`
     - `easy_install zmq`
     - `pip install -r requirements.txt`
-15. Run `python eddn.py` or `python2 eddn.py` and see what happens.
+16. Run `python eddn.py` or `python2 eddn.py` and see what happens.
 
 ## On Windows
 So far we've just run this on Linux and MacOSX, but there's no reason it
