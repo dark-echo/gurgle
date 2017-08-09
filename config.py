@@ -5,8 +5,10 @@ import logging
 import logging.config
 import md5
 from os import makedirs
-from os.path import isdir
+from os.path import isdir, isfile
 
+# Defines the file names checked for configuration information
+_CONFIG_FILES = ['gurgle-local.ini', 'gurgle.local.ini', 'gurgle.ini']
 # Defines the section and field used to hold logging framework configuration
 _LOG_SECTION = 'logging'
 _LOG_CONFIG = 'config'
@@ -15,9 +17,13 @@ _LOG_DIRECTORY = 'directory'
 _LOG_FORMAT = "%(asctime)-19.19s %(levelname)-5.5s [%(name)s] %(message)s"
 
 class Configuration(object):
-    def __init__(self, fileName):
+    def __init__(self):
         self.config = ConfigParser.RawConfigParser()
-        self.config.read(fileName)
+        # Check configuration files in preference order
+        for filename in _CONFIG_FILES:
+            if isfile(filename):
+                self.config.read(filename)
+                break # first config file found is used
 
     def initialiseLogging(self):
         # If a directory is specified, we might need to create it
@@ -54,5 +60,5 @@ class Configuration(object):
         return md5.new(self.config.get(section, name)).hexdigest()
 
 # Initialise on the first import of the module
-Config = Configuration('gurgle.ini')
+Config = Configuration()
 Config.initialiseLogging()
