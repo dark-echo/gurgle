@@ -11,7 +11,7 @@ __EDDN_TIMEOUT = Config.getInteger('eddn', 'timeout', 60000)
 __EDDN_RECONNECT = Config.getInteger('eddn', 'reconnect', 10)
 
 # Only interested in the Journal Schema ($schemaRef)
-_SCHEMA_REFS = [ "http://schemas.elite-markets.net/eddn/journal/1", "http://eddn.edcd.io/eddn/journal/1" ]
+_SCHEMA_REFS = [ "http://schemas.elite-markets.net/eddn/journal/1", "https://eddn.edcd.io/eddn/journal/1" ]
 
 def processMessage(message, logger):
     """Processes the specified message, if possible."""
