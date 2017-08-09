@@ -1,3 +1,15 @@
+# Editor temp files
+*~
+
 # These shouldn't get into git
 gurgle.local.ini
 gurgle-local.ini
+
+# logs don't belong in git
+*.log
+logs/*
+
+# Python Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
