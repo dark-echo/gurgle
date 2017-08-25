@@ -29,6 +29,7 @@ _LOGGER.info("Configured for %.1f LY around %s", Config.getFloat('location', 'di
 # Provide regular expressions to remove extraneous text specifiers
 _MATCH_GOV = re.compile(r'\$government_(.*);', re.IGNORECASE)
 _MATCH_SEC = re.compile(r'\$system_security_(.*);', re.IGNORECASE)
+_MATCH_SEC2 = re.compile(r'\$GAlAXY_MAP_INFO_state_(.*);', re.IGNORECASE)
 _MATCH_ECO = re.compile(r'\$economy_(.*);', re.IGNORECASE)
 
 # Cache mechanism that attempts to prevent duplicate updates
@@ -96,6 +97,8 @@ def ConsumeFSDJump(event):
             update["SystemAllegiance"] = systemAllegiance
         if len(systemSecurity) > 0 and _MATCH_SEC.match(systemSecurity) is not None:
             update["SystemSecurity"] = _MATCH_SEC.match(systemSecurity).group(1)
+        if len(systemSecurity) > 0 and _MATCH_SEC2.match(systemSecurity) is not None:
+            update["SystemSecurity"] = _MATCH_SEC2.match(systemSecurity).group(1)
         if len(systemGovernment) > 0 and _MATCH_GOV.match(systemGovernment) is not None:
             update["SystemGovernment"] = _MATCH_GOV.match(systemGovernment).group(1)
         if len(systemEconomy) > 0 and _MATCH_ECO.match(systemEconomy) is not None:
