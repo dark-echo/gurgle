@@ -95,6 +95,9 @@ def ConsumeFSDJump(event):
         update["EventTime"] = eventTime
         # Add the other useful information
         update["Distance"] = distance
+        update["PositionX"] = starPosX
+        update["PositionY"] = starPosY
+        update["PositionZ"] = starPosZ
         update["Population"] = systemPopulation
         if len(systemAllegiance) > 0:
             update["SystemAllegiance"] = systemAllegiance

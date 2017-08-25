@@ -47,6 +47,7 @@ follow the Linux/Mac instructions.
    - `EventDate` - date extracted from Timestamp
    - `EventTime` - time extracted from Timestamp
    - `StarSystem` - name of the system for which the data is provided
+   - `PositionX` / `PositionY` / `PositionZ` - system coordinates
    - `Distance` - distance calculated for the system based on coordinates provided and configured location in gurgle.ini
    - `SystemSecurity` / `SystemAllegiance` / `SystemGovernment` / `SystemEconomy`
    - `Population` - population, if available in the feed, else blank
