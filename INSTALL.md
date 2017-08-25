@@ -49,6 +49,7 @@ follow the Linux/Mac instructions.
    - `StarSystem` - name of the system for which the data is provided
    - `Distance` - distance calculated for the system based on coordinates provided and configured location in gurgle.ini
    - `SystemSecurity` / `SystemAllegiance` / `SystemGovernment` / `SystemEconomy`
+   - `Population` - population, if available in the feed, else blank
    - `SystemFaction` - faction which controls the system
    - For each faction in the system there will be the following, where $ is replaced by 1 to 10.
      - `Faction$Name`

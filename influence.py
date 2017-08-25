@@ -73,6 +73,8 @@ def ConsumeFSDJump(event):
     systemGovernment = event.get("SystemGovernment", "")
     systemEconomy = event.get("SystemEconomy", "")
     distance = sqrt(starDist2)
+    systemPopulation = event.get("Population", "")
+    
     # Grab the list of factions, if available
     factionList = event.get("Factions", [])
     # Sort by descending influence (just in case)
@@ -93,6 +95,7 @@ def ConsumeFSDJump(event):
         update["EventTime"] = eventTime
         # Add the other useful information
         update["Distance"] = distance
+        update["Population"] = systemPopulation
         if len(systemAllegiance) > 0:
             update["SystemAllegiance"] = systemAllegiance
         if len(systemSecurity) > 0 and _MATCH_SEC.match(systemSecurity) is not None:

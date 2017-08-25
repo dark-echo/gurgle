@@ -5,7 +5,7 @@ The Code.gs provides a simple web app for Google Sheets that accepts incoming da
 
 The eddn.py provides for listening to the Elite Dangerous Data Network which provides a ZeroMQ (0MQ) feed of events supplied through various client applications. We specifically listen for the FSDJump events that detail the faction influences in any visited system, parse the JSON to create data that we can then POST to the Google Sheet web app.
 
-The file.py provides an equivalent that simply takes a Journal log file as the first argument and consumes the FSDJump events in the same way.
+The file.py provides an equivalent that simply takes a Journal log file as the first argument and consumes the Location/FSDJump events in the same way.
 
 ## SETUP
 Read INSTALL.md for instructions
