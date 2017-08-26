@@ -2,8 +2,8 @@ import zlib
 import zmq
 import json
 import time
-from config import Config
-from influence import ConsumeFSDJump
+from module.config import Config
+from module.influence import ConsumeFSDJump
 
 # Configuration specified for the EDDN connection
 __EDDN_RELAY = Config.getString('eddn', 'relay')

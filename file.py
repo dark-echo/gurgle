@@ -1,7 +1,7 @@
 import json
 import sys
-from config import Config
-from influence import ConsumeFSDJump
+from module.config import Config
+from module.influence import ConsumeFSDJump
 
 def main():
     """Main method that reads file for update."""
