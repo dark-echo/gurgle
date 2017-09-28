@@ -10,6 +10,11 @@ _LOGGER = Config.getLogger("influence")
 # Determine if only looking for events today
 _TODAY_ONLY = Config.getBoolean('events', 'today_only', True)
 _ROUND_DISTANCE = Config.getInteger('events', 'distancedp', -1)
+# Allow specific factions to be ignored
+_IGNORE_FACTION_SET = set()
+_IGNORE_FACTIONS = Config.getString('events', 'ignore_factions')
+if _IGNORE_FACTIONS is not None and len(_IGNORE_FACTIONS.strip()) > 0:
+    _IGNORE_FACTION_SET.update([faction.strip() for faction in _IGNORE_FACTIONS.split(",")])
 
 # Interested in activity around a specified location
 _LOCATION_X = Config.getFloat('location', 'x')
@@ -65,6 +70,8 @@ def ConsumeFSDJump(event):
     # Only want to update if we have factions to report on...
     if len(factionList) == 0:
         _LOGGER.debug("Event for %s (%.1fly) discarded since no factions present.", starName, distance)
+    elif set([x["Name"] for x in factionList]).issubset(_IGNORE_FACTION_SET):
+        _LOGGER.debug("Event for %s (%.1fly) discarded since no interesting factions present.", starName, distance)
     else: # len(factionList) > 0
         _LOGGER.debug("Processing update for %s (%.1fly) from %s", starName, distance, timestamp)
         # Create the update
@@ -99,6 +106,9 @@ def CreateUpdate(timestamp, starName, systemFaction, factionList):
     data["SystemEconomy"] = ""
     factionNo = 1
     for faction in factionList:
+        # Not interested in these factions
+        if faction["Name"] in _IGNORE_FACTION_SET:
+            continue
         prefix = "Faction{:d}".format(factionNo)
         data[prefix+"Name"] = faction["Name"]
         data[prefix+"Influence"] = faction["Influence"]
