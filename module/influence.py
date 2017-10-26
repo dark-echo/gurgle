@@ -9,7 +9,9 @@ _LOGGER = Config.getLogger("influence")
 
 # Determine if only looking for events today
 _TODAY_ONLY = Config.getBoolean('events', 'today_only', True)
+# Determine whether we are rounding the distance or location
 _ROUND_DISTANCE = Config.getInteger('events', 'distancedp', -1)
+_ROUND_LOCATION = Config.getInteger('events', 'locationdp', -1)
 # Allow specific factions to be ignored
 _IGNORE_FACTION_SET = set()
 _IGNORE_FACTIONS = Config.getString('events', 'ignore_factions')
@@ -66,6 +68,10 @@ def ConsumeFSDJump(event):
     distance = sqrt(starDist2)
     if _ROUND_DISTANCE >= 0:
         distance = round(distance, _ROUND_DISTANCE)
+    if _ROUND_LOCATION >= 0:
+        starPosX = round(starPosX, _ROUND_LOCATION)
+        starPosY = round(starPosY, _ROUND_LOCATION)
+        starPosZ = round(starPosZ, _ROUND_LOCATION)
 
     # Only want to update if we have factions to report on...
     if len(factionList) == 0:
@@ -80,9 +86,9 @@ def ConsumeFSDJump(event):
         update["EventTime"] = eventTime
         # Add the other useful information
         update["Distance"] = distance
-        update["PositionX"] = starPosX
-        update["PositionY"] = starPosY
-        update["PositionZ"] = starPosZ
+        update["LocationX"] = starPosX
+        update["LocationY"] = starPosY
+        update["LocationZ"] = starPosZ
         update["Population"] = event.get("Population", "")
         if len(systemAllegiance) > 0:
             update["SystemAllegiance"] = systemAllegiance
