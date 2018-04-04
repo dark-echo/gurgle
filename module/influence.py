@@ -125,12 +125,12 @@ def CreateUpdate(timestamp, starName, systemFaction, factionList):
         #  since sheet is expecting either all information or none for
         #  each faction we always need to specify these, even if not present
         states = []
-        if "PendingStates" in faction:
+        if "PendingStates" in faction and faction["PendingStates"] is not None:
             for pendingState in faction["PendingStates"]:
                 states.append(pendingState["State"])
         data[prefix+"PendingState"] = ",".join(states)
         states = []
-        if "RecoveringStates" in faction:
+        if "RecoveringStates" in faction and faction["RecoveringStates"] is not None:
             for recoveringState in faction["RecoveringStates"]:
                 states.append(recoveringState["State"])
         data[prefix+"RecoveringState"] = ",".join(states)
