@@ -40,11 +40,19 @@ class Configuration(object):
         else:
             logging.basicConfig(format=_LOG_FORMAT)
 
+    def hasSection(self, section):
+        return self.config.has_section(section)
+
     def getLogger(self, name):
         return logging.getLogger(name)
 
-    def getString(self, section, name):
-        return self.config.get(section, name)
+    def getString(self, section, name, default=None):
+        if self.config.has_option(section, name):
+            return self.config.get(section, name)
+        return default
+
+    def getRequiredString(self, section, name):
+        return self.config.get(section, name) # throws Exception
 
     def getInteger(self, section, name, default):
         if self.config.has_option(section, name):

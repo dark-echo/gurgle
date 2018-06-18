@@ -9,12 +9,12 @@ import time
 _LOGGER = Config.getLogger("sheet")
 
 # Configuration for the Google Sheet interaction
-__SHEET_URL = Config.getString('sheet', 'url')
+__SHEET_URL = Config.getRequiredString('sheet', 'url')
 __SHEET_API_KEY = Config.getCrypt('sheet', 'apikey')
 __SHEET_RETRIES = Config.getInteger('sheet', 'retries', 3)
 __SHEET_RETRY_WAIT = Config.getInteger('sheet', 'retry_wait', 3)
 __SHEET_TIMEOUT = Config.getInteger('sheet', 'timeout', 10)
-__SHEET_RESPONSE_BUFFER = Config.getInteger('sheet', 'buffer', 512)
+__SHEET_RESPONSE_BUFFER = Config.getInteger('sheet', 'buffer', 1024)
 
 
 def PostUpdate(update, factionList):
@@ -59,8 +59,11 @@ def SendUpdate(dictionary):
                 time.sleep(__SHEET_RETRY_WAIT)
     # Check the response for validity, where "result"="success"
     if success == 200 and response is not None:
-        result = json.loads(response) # Throws Exception if JSON not returned
-        if (result["result"] != "success"):
-            raise Exception("Bad response from Sheet: %s" % result)
-        _LOGGER.debug("Success Response: %s" % result)
+        try:
+            result = json.loads(response) # Throws Exception if JSON not returned
+            if (result["result"] != "success"):
+                raise Exception("Bad response from Sheet: %s" % result)
+            _LOGGER.debug("Success Response: %s" % result)
+        except:
+            _LOGGER.warning("Unexpected response from Sheet: %s", response)
     return (success == 200)

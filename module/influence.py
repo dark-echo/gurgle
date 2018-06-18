@@ -1,29 +1,26 @@
 from math import pow, sqrt
-from datetime import datetime as dt
 from config import Config
+from filter import IsInteresting
 from sheet import PostUpdate
 import re
 
 # Logger instance used by the functions in this module
 _LOGGER = Config.getLogger("influence")
 
-# Determine if only looking for events today
-_TODAY_ONLY = Config.getBoolean('events', 'today_only', True)
 # Determine whether we are rounding the distance or location
 _ROUND_DISTANCE = Config.getInteger('events', 'distancedp', -1)
 _ROUND_LOCATION = Config.getInteger('events', 'locationdp', -1)
+
 # Allow specific factions to be ignored
 _IGNORE_FACTION_SET = set()
 _IGNORE_FACTIONS = Config.getString('events', 'ignore_factions')
 if _IGNORE_FACTIONS is not None and len(_IGNORE_FACTIONS.strip()) > 0:
     _IGNORE_FACTION_SET.update([faction.strip() for faction in _IGNORE_FACTIONS.split(",")])
 
-# Interested in activity around a specified location
+# Define the coordinates for the primary location used to define distance
 _LOCATION_X = Config.getFloat('location', 'x')
 _LOCATION_Y = Config.getFloat('location', 'y')
 _LOCATION_Z = Config.getFloat('location', 'z')
-_RANGE_SQUARED = Config.getFloat('location', 'distance')**2
-_LOGGER.info("Configured for %.1f LY around %s", Config.getFloat('location', 'distance'), Config.getString('location', 'name'))
 
 # Provide regular expressions to remove extraneous text specifiers
 _MATCH_GOV = re.compile(r'\$government_(.*);', re.IGNORECASE)
@@ -36,22 +33,19 @@ def ConsumeFSDJump(event):
     """Consumes the FSDJump event (or equivalent subset of Location event)
         provided by Journal, extracting the factions and influence levels.
     """
-    # Extract the StarPos to confirm we're interested
+    # Only update information if we are interested in the update
+    if not IsInteresting(event):
+        return
+    # Extract the StarPos
     (starPosX, starPosY, starPosZ) = event["StarPos"]
     starDist2 = pow(_LOCATION_X-starPosX,2)+pow(_LOCATION_Y-starPosY,2)+pow(_LOCATION_Z-starPosZ,2)
-    if starDist2 > _RANGE_SQUARED:
-        return
     # Extract the star name which is always provided
     starName = event["StarSystem"]
-    # Determine if the timestamp is considered relevant
+    # Extract the timestamp information
     timestamp = event["timestamp"]
     eventDate = timestamp[0:10]
     eventTime = timestamp[11:19]
-    todayDate = dt.utcnow().strftime("%Y-%m-%d")
-    if _TODAY_ONLY and eventDate != todayDate:
-        _LOGGER.debug("Event for %s discarded as not today: %s", starName, eventDate)
-        return
-    # Interested, so we gather information we want to publish
+
     # Nothing else below here guaranteed to be available
     systemFaction = event.get("SystemFaction", "")
     systemAllegiance = event.get("SystemAllegiance", "")
