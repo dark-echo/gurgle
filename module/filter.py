@@ -39,16 +39,25 @@ def IsInteresting(event):
     """Returns True if the FSDJump event (or equivalent subset of Location event)
         provided by Journal is interesting according to the filter configuration.
     """
+    isInterestingSystem = IsInterestingSystem(event)
+    if isInterestingSystem:
+        # Determine if the timestamp is considered relevant
+        # (NOTE: assumption we receive UTC)
+        timestamp = event["timestamp"]
+        eventDate = timestamp[0:10]
+        todayDate = dt.utcnow().strftime("%Y-%m-%d")
+        if _TODAY_ONLY and eventDate != todayDate:
+            starName = event["StarSystem"]
+            _LOGGER.debug("Event for %s discarded as not today: %s", starName, eventDate)
+            return False
+    return isInterestingSystem
+
+def IsInterestingSystem(event):
+    """Returns True if the FSDJump event (or equivalent subset of Location event)
+        provided by Journal references a system we are interested in, else False.
+    """
     # Extract the star name which is always provided
     starName = event["StarSystem"]
-    # Determine if the timestamp is considered relevant
-    # (NOTE: assumption we receive UTC)
-    timestamp = event["timestamp"]
-    eventDate = timestamp[0:10]
-    todayDate = dt.utcnow().strftime("%Y-%m-%d")
-    if _TODAY_ONLY and eventDate != todayDate:
-        _LOGGER.debug("Event for %s discarded as not today: %s", starName, eventDate)
-        return False
     # Determine if the system must always be included in updates
     if starName in _INCLUDE_SYSTEM_SET:
         return True
